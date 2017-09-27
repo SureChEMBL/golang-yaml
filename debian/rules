@@ -1,0 +1,18 @@
+#!/usr/bin/make -f
+
+export DH_OPTIONS
+export DH_GOPKG := gopkg.in/yaml.v2
+
+%:
+	dh $@ --buildsystem=golang --with=golang
+
+
+DEBVERS    ?= $(shell dpkg-parsechangelog | sed -n -e 's/^Version: //p')
+VERSION    ?= $(shell echo '$(DEBVERS)' | sed 's/^[[:digit:]]*://; s/[-].*//')
+DEBPKGNAME ?= $(shell dpkg-parsechangelog | sed -n -e 's/^Source: //p')
+
+gen-orig-tgz:
+	if [ ! -f ../$(DEBPKGNAME)_$(VERSION).orig.tar.gz ] ; then \
+            git archive --format=tar.gz --prefix=$(DEBPKGNAME)-$(VERSION)/ \
+            upstream/$(VERSION) >../$(DEBPKGNAME)_$(VERSION).orig.tar.gz ; \
+	fi
